@@ -1,0 +1,13 @@
+x = -5:5
+y1 = x.^2
+plot(x,y1)
+hold on;
+y2 = x.^3
+plot(x,y2)
+hold on;
+y3 = exp(x)
+plot(x,y3)
+hold on;
+y4 = sin(x).*cos(x)
+plot(x,y4)
+hold on;
