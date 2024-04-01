@@ -1,0 +1,59 @@
+% Parameters
+L = 1;          % Length of the square domain
+W = 1;          % Width of the square domain
+Nx = 50;        % Number of grid points along x
+Ny = 50;        % Number of grid points along y
+Nt = 200;      % Number of time steps
+dt = 0.001;     % Time step size
+Tamb = 25;      % Ambient temperature
+
+% Grid spacing
+dx = L / (Nx - 1); % Adjust grid spacing calculation
+dy = W / (Ny - 1);
+
+% Thermal diffusivity
+alpha = 0.1;
+
+% Initialize temperature field with boundaries at 100 and ambient temperature elsewhere
+T = Tamb * ones(Nx, Ny);
+T(:, 1) = 450;   % Left boundary
+T(:, end) = 500; % Right boundary
+T(1, :) = 450;   % Top boundary
+T(end, :) = 500; % Bottom boundary
+
+% Plot initial temperature field
+[X, Y] = meshgrid(linspace(0, L, Nx), linspace(0, W, Ny));
+figure;
+h = surf(X, Y, T', 'EdgeColor', 'none');
+colorbar;
+title('Temperature Field');
+xlabel('Distance of plate at horizontal plane');
+ylabel('Distance of plate at vertical plane');
+
+% Create animation
+for t = 1:Nt
+    T_old = T;
+    for i = 2:Nx-1
+        for j = 2:Ny-1
+            T(i,j) = T_old(i,j) + alpha * dt * ((T_old(i+1,j) - 2*T_old(i,j) + T_old(i-1,j)) / dx^2 + ...
+                                                (T_old(i,j+1) - 2*T_old(i,j) + T_old(i,j-1)) / dy^2);
+        end
+    end
+
+    % Check if the handle is still valid
+    if isvalid(h)
+        % Update surface plot
+        set(h, 'ZData', T');
+        title(['Temperature Field at Time Step ' num2str(t)]);
+        
+        % Update colormap gradually from blue to green to yellow to orange to red
+        cmap = jet(500);
+        colormap([cmap(1:125,:); cmap(126:250,:); cmap(251:375,:); cmap(376:450,:); cmap(451:end,:)]);
+        
+        drawnow; % Force update of the figure
+        pause(0.0001); % Pause to control animation speed
+    else
+        % Handle the case where the figure is closed
+        break;
+    end
+end
